@@ -26,6 +26,7 @@ attachments_dir = os.path.join(_base_dir, 'attachments')
 avtar_dir = os.path.join(attachments_dir, 'avtar')
 xmas_dir = os.path.join(attachments_dir, 'xms')
 gen_attachment_path = partial(os.path.join, attachments_dir)
+error_msg = u'未检测出人脸，请上传正面照：）'
 
 # 初始化机器人，扫码登陆
 _bot = Bot(False, True)
@@ -192,40 +193,56 @@ def auto_accept_friends(msg):
     new_friend = msg.card.accept()
     # 向新的好友发送消息
     new_friend.send(u'欢迎朋友，发送“圣诞”、“xms”、“christmas”或者图片自动送帽子.PS：颜色正常的:)')
-    avtar_path = os.path.join(avtar_dir, new_friend.uin() + '.jpg')
-    avatar = new_friend.get_avatar(avtar_path)
-    logging.debug(avtar_path)
-    logging.debug(avatar)
-    xmas_img = add_hat_file(avtar_path)
-    logging.debug(xmas_img)
-    new_friend.send_image(xmas_img)
+    try:
+        avtar_path = os.path.join(avtar_dir, new_friend.uin() + '.jpg')
+        avatar = new_friend.get_avatar(avtar_path)
+        logging.debug(avtar_path)
+        logging.debug(avatar)
+        xmas_img = add_hat_file(avtar_path)
+        logging.debug(xmas_img)
+        new_friend.send_image(xmas_img)
+    except Exception as e:
+        new_friend.send_image(error_msg)
+        logging.exception(e)
+        # raise e
+    
 
 # 自动回复图片
 @_bot.register(msg_types=PICTURE)
 def auto_reply_picture(msg):
     # 向好友发送消息
     msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
-    avtar_path = os.path.join(avtar_dir, str(msg._receive_time) + '.jpg')
-    avatar = msg.get_file(avtar_path)
-    logging.debug(avtar_path)
-    logging.debug(avatar)
-    xmas_img = add_hat_file(avtar_path)
-    logging.debug(xmas_img)
-    msg.reply_image(xmas_img)
-
+    try:
+        avtar_path = os.path.join(avtar_dir, str(msg.id) + '.jpg')
+        avatar = msg.get_file(avtar_path)
+        logging.debug(avtar_path)
+        logging.debug(avatar)
+        xmas_img = add_hat_file(avtar_path)
+        logging.debug(xmas_img)
+        msg.reply_image(xmas_img)
+    except Exception as e:
+        new_friend.send_image(error_msg)
+        logging.exception(e)
+        # raise e
+        
 # 关键字处理
 @_bot.register(msg_types=TEXT)
 def auto_reply_keywords(msg):
     if msg.text.find(u'圣诞') > -1 or msg.text.find(u'xms') > -1 or msg.text.find(u'christmas') > -1:
         # 向好友发送消息
         msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
-        avtar_path = os.path.join(avtar_dir, str(msg._receive_time) + '.jpg')
-        avatar = msg.chat.get_avatar(avtar_path)
-        logging.debug(avtar_path)
-        logging.debug(avatar)
-        xmas_img = add_hat_file(avtar_path)
-        logging.debug(xmas_img)
-        msg.reply_image(xmas_img)
+        try:
+            avtar_path = os.path.join(avtar_dir, str(msg.id) + '.jpg')
+            avatar = msg.chat.get_avatar(avtar_path)
+            logging.debug(avtar_path)
+            logging.debug(avatar)
+            xmas_img = add_hat_file(avtar_path)
+            logging.debug(xmas_img)
+            msg.reply_image(xmas_img)
+        except Exception as e:
+            new_friend.send_image(error_msg)
+            logging.exception(e)
+            # raise e       
     else:
         tuling = Tuling(api_key='42bbff0b64664a1a8014466d7c374352')
         tuling.do_reply(msg)
