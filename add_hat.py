@@ -192,7 +192,7 @@ def auto_accept_friends(msg):
     new_friend = msg.card.accept()
     # 向新的好友发送消息
     new_friend.send(u'欢迎朋友，发送“圣诞”、“xms”、“christmas”或者图片自动送帽子.PS：颜色正常的:)')
-    avtar_path = os.path.join(avtar_dir, new_friend.uin + '.jpg')
+    avtar_path = os.path.join(avtar_dir, new_friend.uin() + '.jpg')
     avatar = new_friend.get_avatar(avtar_path)
     logging.debug(avtar_path)
     logging.debug(avtar)
@@ -205,7 +205,7 @@ def auto_accept_friends(msg):
 def auto_reply_picture(msg):
     # 向好友发送消息
     msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
-    avtar_path = os.path.join(avtar_dir, msg.uin + '.jpg')
+    avtar_path = os.path.join(avtar_dir, msg.sender() + '.jpg')
     avatar = msg.get_file(avtar_path)
     logging.debug(avtar_path)
     logging.debug(avtar)
@@ -219,7 +219,7 @@ def auto_reply_keywords(msg):
     if msg.text.find(u'圣诞') > -1 or msg.text.find(u'xms') > -1 or msg.text.find(u'christmas') > -1:
         # 向好友发送消息
         msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
-        avtar_path = os.path.join(avtar_dir, msg.uin + '.jpg')
+        avtar_path = os.path.join(avtar_dir, msg.sender() + '.jpg')
         avatar = msg.get_avatar(avtar_path)
         logging.debug(avtar_path)
         logging.debug(avtar)
