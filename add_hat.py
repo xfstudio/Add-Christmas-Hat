@@ -181,6 +181,7 @@ def add_hat_file(in_img, hat_img='hat2.png'):
     #     cv2.waitKey(0)  
 
     cv2.destroyAllWindows()
+    logging.info(out_img)
     return out_img
 
 
@@ -204,7 +205,7 @@ def auto_accept_friends(msg):
 def auto_reply_picture(msg):
     # 向好友发送消息
     msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
-    avtar_path = os.path.join(avtar_dir, new_friend.uin + '.jpg')
+    avtar_path = os.path.join(avtar_dir, msg.uin + '.jpg')
     avatar = msg.get_file(avtar_path)
     logging.debug(avtar_path)
     logging.debug(avtar)
@@ -218,7 +219,7 @@ def auto_reply_keywords(msg):
     if msg.text.find(u'圣诞') > -1 or msg.text.find(u'xms') > -1 or msg.text.find(u'christmas') > -1:
         # 向好友发送消息
         msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
-        avtar_path = os.path.join(avtar_dir, new_friend.uin + '.jpg')
+        avtar_path = os.path.join(avtar_dir, msg.uin + '.jpg')
         avatar = msg.get_avatar(avtar_path)
         logging.debug(avtar_path)
         logging.debug(avtar)
