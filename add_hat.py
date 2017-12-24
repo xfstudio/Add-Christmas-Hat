@@ -27,7 +27,7 @@ avtar_dir = os.path.join(attachments_dir, 'avtar')
 xmas_dir = os.path.join(attachments_dir, 'xms')
 gen_attachment_path = partial(os.path.join, attachments_dir)
 random_msg = [u'正在打开PS...', u'正在导入你的照片...', u'正在抠图...', u'正在制作🎩...', u'正在寻找🎄...']
-num_msg = random_msg.len()
+num_msg = len(random_msg)
 error_msg = u'请上传正面照才能戴的哟：）'
 
 
