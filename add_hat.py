@@ -1,6 +1,31 @@
+# coding: utf-8
+# 
+import os, time
 import numpy as np 
 import cv2
 import dlib
+
+from functools import partial
+from queue import Queue
+import pytest
+import logging
+from wxpy import *
+
+_base_dir = os.path.dirname(os.path.realpath(__file__))
+attachments_dir = os.path.join(_base_dir, 'attachments')
+avtar_dir = os.path.join(attachments_dir, 'avtar')
+xmas_dir = os.path.join(attachments_dir, 'xms')
+gen_attachment_path = partial(os.path.join, attachments_dir)
+
+# 初始化机器人，扫码登陆
+_bot = Bot(os.path.join(_base_dir, 'wxpy_bot.pkl'))
+_friend = ensure_one(_bot.friends().search(u'肖长省'))
+_group = ensure_one(_bot.groups().search(u'trade-test'))
+_member = ensure_one(_group.search(u'trade-ripple'))
+_shared_dict = dict()
+
+global_use = partial(pytest.fixture, scope='session', autouse=True)
+
 
 # 给img中的人头像加上圣诞帽，人脸最好为正脸
 def add_hat(img,hat_img):
@@ -118,30 +143,102 @@ def add_hat(img,hat_img):
 
             return img
 
-   
-# 读取帽子图，第二个参数-1表示读取为rgba通道，否则为rgb通道
-hat_img = cv2.imread("hat2.png",-1)
+def add_hat_file(in_img, hat_img='hat2.png'):
+    # 读取帽子图，第二个参数-1表示读取为rgba通道，否则为rgb通道
+    hat_img = cv2.imread(hat_img,-1)
 
-# 读取头像图
-img = cv2.imread("test.jpg")
-output = add_hat(img,hat_img)
+    # 读取头像图
+    img = cv2.imread(in_img)
+    output = add_hat(img,hat_img)
 
-# 展示效果
-cv2.imshow("output",output )  
-cv2.waitKey(0)  
-cv2.imwrite("output.jpg",output)
-# import glob as gb 
+    # 展示效果
+    cv2.imshow("output",output )  
+    cv2.waitKey(0)  
+    out_img = os.path.join(xmas_dir, os.path.basename(in_img))
+    cv2.imwrite(out_img,output)
+    # import glob as gb 
 
-# img_path = gb.glob("./images/*.jpg")
+    # img_path = gb.glob("./images/*.jpg")
 
-# for path in img_path:
-#     img = cv2.imread(path)
+    # for path in img_path:
+    #     img = cv2.imread(path)
 
-#     # 添加帽子
-#     output = add_hat(img,hat_img)
+    #     # 添加帽子
+    #     output = add_hat(img,hat_img)
 
-#     # 展示效果
-#     cv2.imshow("output",output )  
-#     cv2.waitKey(0)  
+    #     # 展示效果
+    #     cv2.imshow("output",output )  
+    #     cv2.waitKey(0)  
 
-cv2.destroyAllWindows()  
+    cv2.destroyAllWindows()
+    return out_img
+
+
+# 自动接受新的好友请求
+@_bot.register(msg_types=FRIENDS)
+def auto_accept_friends(msg):
+    # 接受好友请求
+    new_friend = msg.card.accept()
+    # 向新的好友发送消息
+    new_friend.send(u'欢迎朋友，发送“圣诞”、“xms”、“christmas”或者图片自动送帽子.PS：颜色正常的:)')
+    avatar = new_friend.get_avatar(avtar_dir)
+    xmas_img = add_hat_file(avatar)
+    new_friend.send_image(xmas_img)
+
+# 自动回复图片
+@_bot.register(msg_types=PICTURE)
+def auto_reply_picture(msg):
+    # 向好友发送消息
+    msg.send(u'正常为你戴上圣诞帽.PS：颜色正常的:)')
+    avatar = msg.get_avatar(avtar_dir)
+    xmas_img = add_hat_file(avatar)
+    msg.send_image(xmas_img)
+
+# 关键字处理
+@_bot.register(msg_types=TEXT)
+def auto_reply_keywords(msg):
+    if msg.text.find(u'圣诞') > -1 or msg.text.find(u'xms') > -1 or msg.text.find(u'christmas') > -1:
+        # 向好友发送消息
+        msg.send(u'正常为你戴上圣诞帽.PS：颜色正常的:)')
+        avatar = msg.get_avatar(avtar_dir)
+        xmas_img = add_hat_file(avatar)
+        msg.send_image(xmas_img)
+
+def wait_for_message(chats=None, msg_types=None, except_self=True, timeout=30):
+    """
+    等待一条指定的消息，并返回这条消息
+
+    :param chats: 所需等待消息所在的聊天会话
+    :param msg_types: 所需等待的消息类型
+    :param except_self: 是否排除自己发送的消息
+    :param timeout: 等待的超时秒数，若为 None 则一直等待，直到收到所需的消息
+    :return: 若在超时内等到了消息，则返回此消息，否则抛出 `queue.Empty` 异常
+    """
+
+    received = Queue()
+
+
+    @_bot.register(chats=chats, msg_types=msg_types, except_self=except_self)
+    def _func(msg):
+        tuling = Tuling(api_key='42bbff0b64664a1a8014466d7c374352')
+        tuling.do_reply(msg)
+        logger = get_wechat_logger(_group)
+        logger.warning(msg)
+
+        received.put(msg)
+
+    _config = _bot.registered.get_config_by_func(_func)
+
+    ret = received.get(timeout=timeout)
+
+    _bot.registered.remove(_config)
+
+    return ret
+
+
+# 进入 Python 命令行、让程序保持运行
+# embed()
+
+# 或者仅仅堵塞线程
+# bot.join()
+
