@@ -26,7 +26,7 @@ attachments_dir = os.path.join(_base_dir, 'attachments')
 avtar_dir = os.path.join(attachments_dir, 'avtar')
 xmas_dir = os.path.join(attachments_dir, 'xms')
 gen_attachment_path = partial(os.path.join, attachments_dir)
-random_msg = [u'正在打开PS...', u'正在导入你的照片...', u'正在抠图...', u'正在制作🎩...', u'正在寻找🎄...']
+random_msg = [u'正在打开PS...', u'正在导入你的照片...', u'正在抠图...', u'正在尬聊...', u'正在制作🎩...', u'正在寻找🎄...']
 num_msg = len(random_msg)
 error_msg = u'请上传正面照才能戴的哟：）'
 
@@ -193,7 +193,8 @@ def add_hat_file(in_img, hat_img='hat2.png'):
 @_bot.register(msg_types=FRIENDS)
 def auto_accept_friends(msg):
     # 接受好友请求
-    new_friend = msg.card.accept() 
+    new_friend = msg.card.accept()
+    new_friend.send(u'欢迎新朋友，发送“圣诞”、“xms”、“christmas”或者靓照自动送帽子.全能机器人陪聊')
     try:
         msg.reply(random_msg[random.randint(0,num_msg)])
         avtar_path = os.path.join(avtar_dir, new_friend.uin() + '.jpg')
@@ -201,8 +202,7 @@ def auto_accept_friends(msg):
         logging.debug(avtar_path)
         logging.debug(avatar)
         xmas_img = add_hat_file(avtar_path)
-        logging.debug(xmas_img)
-        new_friend.send(u'欢迎朋友，发送“圣诞”、“xms”、“christmas”或者靓照自动送帽子.全能机器人陪聊')
+        logging.debug(xmas_img)        
         new_friend.send_image(xmas_img)
     except Exception as e:
         logging.exception(e)
