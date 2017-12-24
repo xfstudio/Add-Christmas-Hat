@@ -205,13 +205,13 @@ def auto_accept_friends(msg):
 def auto_reply_picture(msg):
     # 向好友发送消息
     msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
-    avtar_path = os.path.join(avtar_dir, msg.sender() + '.jpg')
+    avtar_path = os.path.join(avtar_dir, str(msg._receive_time) + '.jpg')
     avatar = msg.get_file(avtar_path)
     logging.debug(avtar_path)
     logging.debug(avtar)
     xmas_img = add_hat_file(avtar_path)
     logging.debug(xmas_img)
-    new_friend.send_image(xmas_img)
+    msg.reply_image(xmas_img)
 
 # 关键字处理
 @_bot.register(msg_types=TEXT)
@@ -219,19 +219,19 @@ def auto_reply_keywords(msg):
     if msg.text.find(u'圣诞') > -1 or msg.text.find(u'xms') > -1 or msg.text.find(u'christmas') > -1:
         # 向好友发送消息
         msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
-        avtar_path = os.path.join(avtar_dir, msg.sender() + '.jpg')
+        avtar_path = os.path.join(avtar_dir, str(msg._receive_time) + '.jpg')
         avatar = msg.get_avatar(avtar_path)
         logging.debug(avtar_path)
         logging.debug(avtar)
         xmas_img = add_hat_file(avtar_path)
         logging.debug(xmas_img)
-        msg.send_image(xmas_img)
+        msg.reply_image(xmas_img)
     else:
         tuling = Tuling(api_key='42bbff0b64664a1a8014466d7c374352')
         tuling.do_reply(msg)
 
 # 进入 Python 命令行、让程序保持运行
-embed(local=None, banner=u'进入命令行', shell='python')
+wxpy.embed(local=None, banner=u'进入命令行', shell='python')
 
 # 或者仅仅堵塞线程
 # bot.join()
