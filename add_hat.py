@@ -7,7 +7,7 @@ import dlib
 
 from functools import partial
 from queue import Queue
-# import pytest
+# import pytest f
 import logging
 from wxpy import *
 
@@ -18,11 +18,11 @@ xmas_dir = os.path.join(attachments_dir, 'xms')
 gen_attachment_path = partial(os.path.join, attachments_dir)
 
 # 初始化机器人，扫码登陆
-_bot = Bot(True)
+_bot = Bot(True, True)
 _friend = ensure_one(_bot.friends().search(u'肖长省'))
 _group = ensure_one(_bot.groups().search(u'trade-test'))
-_member = ensure_one(_group.search(u'trade-ripple'))
-_shared_dict = dict()
+# _member = ensure_one(_group.search(u'trade-ripple'))
+# _shared_dict = dict()
 
 # global_use = partial(pytest.fixture, scope='session', autouse=True)
 
