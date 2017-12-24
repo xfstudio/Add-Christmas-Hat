@@ -162,8 +162,8 @@ def add_hat_file(in_img, hat_img='hat2.png'):
     output = add_hat(img,hat_img)
 
     # 展示效果
-    cv2.imshow("output", output)  
-    cv2.waitKey(0)  
+    # cv2.imshow("output", output)  
+    # cv2.waitKey(0)  
     out_img = os.path.join(xmas_dir, os.path.basename(in_img))
     cv2.imwrite(out_img, output)
     # import glob as gb 
