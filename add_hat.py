@@ -190,9 +190,7 @@ def add_hat_file(in_img, hat_img='hat2.png'):
 @_bot.register(msg_types=FRIENDS)
 def auto_accept_friends(msg):
     # 接受好友请求
-    new_friend = msg.card.accept()
-    # 向新的好友发送消息
-    new_friend.send(u'欢迎朋友，发送“圣诞”、“xms”、“christmas”或者图片自动送帽子.PS：颜色正常的:)')
+    new_friend = msg.card.accept() 
     try:
         avtar_path = os.path.join(avtar_dir, new_friend.uin() + '.jpg')
         avatar = new_friend.get_avatar(avtar_path)
@@ -200,6 +198,7 @@ def auto_accept_friends(msg):
         logging.debug(avatar)
         xmas_img = add_hat_file(avtar_path)
         logging.debug(xmas_img)
+        new_friend.send(u'欢迎朋友，发送“圣诞”、“xms”、“christmas”或者靓照自动送帽子.全能机器人陪聊')
         new_friend.send_image(xmas_img)
     except Exception as e:
         new_friend.send_image(error_msg)
@@ -211,7 +210,6 @@ def auto_accept_friends(msg):
 @_bot.register(msg_types=PICTURE)
 def auto_reply_picture(msg):
     # 向好友发送消息
-    msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
     try:
         avtar_path = os.path.join(avtar_dir, str(msg.id) + '.jpg')
         avatar = msg.get_file(avtar_path)
@@ -219,9 +217,10 @@ def auto_reply_picture(msg):
         logging.debug(avatar)
         xmas_img = add_hat_file(avtar_path)
         logging.debug(xmas_img)
+        msg.reply(u'正为你戴上圣诞帽...')
         msg.reply_image(xmas_img)
     except Exception as e:
-        new_friend.send_image(error_msg)
+        msg.send_image(error_msg)
         logging.exception(e)
         # raise e
         
@@ -230,7 +229,6 @@ def auto_reply_picture(msg):
 def auto_reply_keywords(msg):
     if msg.text.find(u'圣诞') > -1 or msg.text.find(u'xms') > -1 or msg.text.find(u'christmas') > -1:
         # 向好友发送消息
-        msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
         try:
             avtar_path = os.path.join(avtar_dir, str(msg.id) + '.jpg')
             avatar = msg.chat.get_avatar(avtar_path)
@@ -238,9 +236,10 @@ def auto_reply_keywords(msg):
             logging.debug(avatar)
             xmas_img = add_hat_file(avtar_path)
             logging.debug(xmas_img)
+            msg.reply(u'正为你戴上圣诞帽...')
             msg.reply_image(xmas_img)
         except Exception as e:
-            new_friend.send_image(error_msg)
+            msg.send_image(error_msg)
             logging.exception(e)
             # raise e       
     else:
