@@ -13,6 +13,14 @@ from queue import Queue
 import logging
 from wxpy import *
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG,
+                format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                datefmt='%a, %d %b %Y %H:%M:%S',
+                filename='.log',
+                filemode='w')
+
 _base_dir = os.path.dirname(os.path.realpath(__file__))
 attachments_dir = os.path.join(_base_dir, 'attachments')
 avtar_dir = os.path.join(attachments_dir, 'avtar')
@@ -183,8 +191,12 @@ def auto_accept_friends(msg):
     new_friend = msg.card.accept()
     # 向新的好友发送消息
     new_friend.send(u'欢迎朋友，发送“圣诞”、“xms”、“christmas”或者图片自动送帽子.PS：颜色正常的:)')
-    avatar = new_friend.get_avatar(avtar_dir)
-    xmas_img = add_hat_file(avatar)
+    avtar_path = os.path.join(avtar_dir, new_friend.uin + '.jpg')
+    avatar = new_friend.get_avatar(avtar_path)
+    logging.debug(avtar_path)
+    logging.debug(avtar)
+    xmas_img = add_hat_file(avtar_path)
+    logging.debug(xmas_img)
     new_friend.send_image(xmas_img)
 
 # 自动回复图片
@@ -192,9 +204,13 @@ def auto_accept_friends(msg):
 def auto_reply_picture(msg):
     # 向好友发送消息
     msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
-    avatar = msg.get_file('' + msg.file_name)
-    xmas_img = add_hat_file(avatar)
-    msg.send_image(xmas_img)
+    avtar_path = os.path.join(avtar_dir, new_friend.uin + '.jpg')
+    avatar = msg.get_file(avtar_path)
+    logging.debug(avtar_path)
+    logging.debug(avtar)
+    xmas_img = add_hat_file(avtar_path)
+    logging.debug(xmas_img)
+    new_friend.send_image(xmas_img)
 
 # 关键字处理
 @_bot.register(msg_types=TEXT)
@@ -202,13 +218,16 @@ def auto_reply_keywords(msg):
     if msg.text.find(u'圣诞') > -1 or msg.text.find(u'xms') > -1 or msg.text.find(u'christmas') > -1:
         # 向好友发送消息
         msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
-        avatar = msg.get_avatar(avtar_dir)
-        print(avatar)
-        xmas_img = add_hat_file(avatar)
-        print(xmas_img)
+        avtar_path = os.path.join(avtar_dir, new_friend.uin + '.jpg')
+        avatar = msg.get_avatar(avtar_path)
+        logging.debug(avtar_path)
+        logging.debug(avtar)
+        xmas_img = add_hat_file(avtar_path)
+        logging.debug(xmas_img)
         msg.send_image(xmas_img)
-    tuling = Tuling(api_key='42bbff0b64664a1a8014466d7c374352')
-    tuling.do_reply(msg)
+    else:
+        tuling = Tuling(api_key='42bbff0b64664a1a8014466d7c374352')
+        tuling.do_reply(msg)
 
 # 进入 Python 命令行、让程序保持运行
 embed(local=None, banner=u'进入命令行', shell='python')
