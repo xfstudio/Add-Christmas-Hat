@@ -201,8 +201,8 @@ def auto_accept_friends(msg):
         new_friend.send(u'欢迎朋友，发送“圣诞”、“xms”、“christmas”或者靓照自动送帽子.全能机器人陪聊')
         new_friend.send_image(xmas_img)
     except Exception as e:
-        new_friend.send_image(error_msg)
         logging.exception(e)
+        new_friend.send(error_msg)
         # raise e
     
 
@@ -217,11 +217,11 @@ def auto_reply_picture(msg):
         logging.debug(avatar)
         xmas_img = add_hat_file(avtar_path)
         logging.debug(xmas_img)
-        msg.reply(u'正为你戴上圣诞帽...')
+        # msg.reply(u'正为你戴上圣诞帽...')
         msg.reply_image(xmas_img)
     except Exception as e:
-        msg.send_image(error_msg)
         logging.exception(e)
+        msg.reply(error_msg)
         # raise e
         
 # 关键字处理
@@ -236,11 +236,11 @@ def auto_reply_keywords(msg):
             logging.debug(avatar)
             xmas_img = add_hat_file(avtar_path)
             logging.debug(xmas_img)
-            msg.reply(u'正为你戴上圣诞帽...')
+            # msg.reply(u'正为你戴上圣诞帽...')
             msg.reply_image(xmas_img)
         except Exception as e:
-            msg.send_image(error_msg)
             logging.exception(e)
+            msg.reply(error_msg)
             # raise e       
     else:
         tuling = Tuling(api_key='42bbff0b64664a1a8014466d7c374352')
