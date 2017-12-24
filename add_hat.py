@@ -18,7 +18,7 @@ xmas_dir = os.path.join(attachments_dir, 'xms')
 gen_attachment_path = partial(os.path.join, attachments_dir)
 
 # 初始化机器人，扫码登陆
-_bot = Bot(os.path.join(_base_dir, 'wxpy_bot.pkl'))
+_bot = Bot(True)
 _friend = ensure_one(_bot.friends().search(u'肖长省'))
 _group = ensure_one(_bot.groups().search(u'trade-test'))
 _member = ensure_one(_group.search(u'trade-ripple'))
