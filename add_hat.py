@@ -7,7 +7,7 @@ import dlib
 
 from functools import partial
 from queue import Queue
-import pytest
+# import pytest
 import logging
 from wxpy import *
 
@@ -24,7 +24,7 @@ _group = ensure_one(_bot.groups().search(u'trade-test'))
 _member = ensure_one(_group.search(u'trade-ripple'))
 _shared_dict = dict()
 
-global_use = partial(pytest.fixture, scope='session', autouse=True)
+# global_use = partial(pytest.fixture, scope='session', autouse=True)
 
 
 # 给img中的人头像加上圣诞帽，人脸最好为正脸
@@ -189,7 +189,7 @@ def auto_accept_friends(msg):
 @_bot.register(msg_types=PICTURE)
 def auto_reply_picture(msg):
     # 向好友发送消息
-    msg.send(u'正常为你戴上圣诞帽.PS：颜色正常的:)')
+    msg.send(u'正为你戴上圣诞帽.PS：颜色正常的:)')
     avatar = msg.get_avatar(avtar_dir)
     xmas_img = add_hat_file(avatar)
     msg.send_image(xmas_img)
@@ -199,7 +199,7 @@ def auto_reply_picture(msg):
 def auto_reply_keywords(msg):
     if msg.text.find(u'圣诞') > -1 or msg.text.find(u'xms') > -1 or msg.text.find(u'christmas') > -1:
         # 向好友发送消息
-        msg.send(u'正常为你戴上圣诞帽.PS：颜色正常的:)')
+        msg.send(u'正为你戴上圣诞帽.PS：颜色正常的:)')
         avatar = msg.get_avatar(avtar_dir)
         xmas_img = add_hat_file(avatar)
         msg.send_image(xmas_img)
