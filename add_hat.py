@@ -190,9 +190,9 @@ def auto_accept_friends(msg):
 def auto_reply_picture(msg):
     # 向好友发送消息
     msg.send(u'正为你戴上圣诞帽.PS：颜色正常的:)')
-    avatar = msg.get_avatar(avtar_dir)
+    avatar = msg.get_file('' + msg.file_name)
     xmas_img = add_hat_file(avatar)
-    msg.send_image(xmas_img)
+    msg.reply(xmas_img)
 
 # 关键字处理
 @_bot.register(msg_types=TEXT)
@@ -202,7 +202,7 @@ def auto_reply_keywords(msg):
         msg.send(u'正为你戴上圣诞帽.PS：颜色正常的:)')
         avatar = msg.get_avatar(avtar_dir)
         xmas_img = add_hat_file(avatar)
-        msg.send_image(xmas_img)
+        msg.reply(xmas_img)
 
 def wait_for_message(chats=None, msg_types=None, except_self=True, timeout=30):
     """
@@ -237,7 +237,7 @@ def wait_for_message(chats=None, msg_types=None, except_self=True, timeout=30):
 
 
 # 进入 Python 命令行、让程序保持运行
-# embed()
+embed()
 
 # 或者仅仅堵塞线程
 # bot.join()
