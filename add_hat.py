@@ -231,7 +231,7 @@ def auto_reply_keywords(msg):
         tuling.do_reply(msg)
 
 # 进入 Python 命令行、让程序保持运行
-wxpy.embed(local=None, banner=u'进入命令行', shell='python')
+embed(local=None, banner=u'进入命令行', shell='python')
 
 # 或者仅仅堵塞线程
 # bot.join()
