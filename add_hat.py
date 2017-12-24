@@ -18,7 +18,7 @@ xmas_dir = os.path.join(attachments_dir, 'xms')
 gen_attachment_path = partial(os.path.join, attachments_dir)
 
 # 初始化机器人，扫码登陆
-_bot = Bot(True, True)
+_bot = Bot(False, True)
 _friend = ensure_one(_bot.friends().search(u'肖长省'))
 _group = ensure_one(_bot.groups().search(u'trade-test'))
 # _member = ensure_one(_group.search(u'trade-ripple'))
@@ -145,17 +145,17 @@ def add_hat(img,hat_img):
 
 def add_hat_file(in_img, hat_img='hat2.png'):
     # 读取帽子图，第二个参数-1表示读取为rgba通道，否则为rgb通道
-    hat_img = cv2.imread(hat_img,-1)
+    hat_img = cv2.imread(hat_img, -1)
 
     # 读取头像图
     img = cv2.imread(in_img)
     output = add_hat(img,hat_img)
 
     # 展示效果
-    cv2.imshow("output",output )  
+    cv2.imshow("output", output)  
     cv2.waitKey(0)  
     out_img = os.path.join(xmas_dir, os.path.basename(in_img))
-    cv2.imwrite(out_img,output)
+    cv2.imwrite(out_img, output)
     # import glob as gb 
 
     # img_path = gb.glob("./images/*.jpg")
@@ -203,41 +203,11 @@ def auto_reply_keywords(msg):
         avatar = msg.get_avatar(avtar_dir)
         xmas_img = add_hat_file(avatar)
         msg.reply(xmas_img)
-
-def wait_for_message(chats=None, msg_types=None, except_self=True, timeout=30):
-    """
-    等待一条指定的消息，并返回这条消息
-
-    :param chats: 所需等待消息所在的聊天会话
-    :param msg_types: 所需等待的消息类型
-    :param except_self: 是否排除自己发送的消息
-    :param timeout: 等待的超时秒数，若为 None 则一直等待，直到收到所需的消息
-    :return: 若在超时内等到了消息，则返回此消息，否则抛出 `queue.Empty` 异常
-    """
-
-    received = Queue()
-
-
-    @_bot.register(chats=chats, msg_types=msg_types, except_self=except_self)
-    def _func(msg):
-        tuling = Tuling(api_key='42bbff0b64664a1a8014466d7c374352')
-        tuling.do_reply(msg)
-        logger = get_wechat_logger(_group)
-        logger.warning(msg)
-
-        received.put(msg)
-
-    _config = _bot.registered.get_config_by_func(_func)
-
-    ret = received.get(timeout=timeout)
-
-    _bot.registered.remove(_config)
-
-    return ret
-
+    tuling = Tuling(api_key='42bbff0b64664a1a8014466d7c374352')
+    tuling.do_reply(msg)
 
 # 进入 Python 命令行、让程序保持运行
-embed()
+embed(local=None, banner=u'进入命令行', shell='python')
 
 # 或者仅仅堵塞线程
 # bot.join()
