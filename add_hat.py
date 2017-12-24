@@ -1,4 +1,6 @@
+#! /usr/bin/env python
 # coding: utf-8
+from __future__ import print_function
 # 
 import os, time
 import numpy as np 
@@ -20,7 +22,7 @@ gen_attachment_path = partial(os.path.join, attachments_dir)
 # 初始化机器人，扫码登陆
 _bot = Bot(False, True)
 _friend = ensure_one(_bot.friends().search(u'肖长省'))
-_group = ensure_one(_bot.groups().search(u'trade-test'))
+# _group = ensure_one(_bot.groups().search(u'trade-test'))
 # _member = ensure_one(_group.search(u'trade-ripple'))
 # _shared_dict = dict()
 
@@ -189,20 +191,22 @@ def auto_accept_friends(msg):
 @_bot.register(msg_types=PICTURE)
 def auto_reply_picture(msg):
     # 向好友发送消息
-    msg.send(u'正为你戴上圣诞帽.PS：颜色正常的:)')
+    msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
     avatar = msg.get_file('' + msg.file_name)
     xmas_img = add_hat_file(avatar)
-    msg.reply(xmas_img)
+    msg.send_image(xmas_img)
 
 # 关键字处理
 @_bot.register(msg_types=TEXT)
 def auto_reply_keywords(msg):
     if msg.text.find(u'圣诞') > -1 or msg.text.find(u'xms') > -1 or msg.text.find(u'christmas') > -1:
         # 向好友发送消息
-        msg.send(u'正为你戴上圣诞帽.PS：颜色正常的:)')
+        msg.reply(u'正为你戴上圣诞帽.PS：颜色正常的:)')
         avatar = msg.get_avatar(avtar_dir)
+        print(avatar)
         xmas_img = add_hat_file(avatar)
-        msg.reply(xmas_img)
+        print(xmas_img)
+        msg.send_image(xmas_img)
     tuling = Tuling(api_key='42bbff0b64664a1a8014466d7c374352')
     tuling.do_reply(msg)
 
