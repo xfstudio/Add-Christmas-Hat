@@ -40,9 +40,16 @@ admin_request_num = u'xfolstudio'   #定义管理员微信号（必须是机器�
 group_name = u'trade-test'    #定义要查找群的名字
 
 # 初始化机器人，扫码登陆
-bot = Bot(False, True)
+bot = Bot(True, True)
+
+adminer = ensure_one(bot.friends(update=True).search(admin_request_name))
+my_group = ensure_one(bot.groups(update=True).search(group_name))
+group_admin = ensure_one(my_group.members.search(admin_request_name))
 
 # global_use = partial(pytest.fixture, scope='session', autouse=True)
+# 
+tuling = Tuling(api_key='42bbff0b64664a1a8014466d7c374352')
+# xiaoi = XiaoI('PQunMu3c66bM', 'FrQl1oi1YzpDSULeAIit')   #小i机器人接口
 
 
 # 给img中的人头像加上圣诞帽，人脸最好为正脸
@@ -192,6 +199,38 @@ def add_hat_file(in_img, hat_img='hat2.png'):
     logging.info(out_img)
     return out_img
 
+
+
+#处理管理员信息
+@bot.register(adminer, msg_types=TEXT)
+def adminer(msg):
+    if '备份' in msg.text:
+        msg.sender.send_file('test.csv')
+    elif msg.text.find(u'群发') >= 0 :
+        friendList = bot.friends(update=True)[1:]
+        for friend in friendList:
+            bot.send(msg.text.replace(u'群发', (friend['DisplayName']
+                or friend['NickName']), friend['UserName']))
+            time.sleep(.5)
+    else:
+        return "请检查命令是否输入正确"
+
+#群聊管理
+@bot.register(my_group, msg_types=TEXT)
+def group(msg):
+    if msg.is_at :
+        if '踢出' in msg.text:
+            if msg.member == group_admin :
+                for member_name in msg.text.split('@')[2:]:
+                    logging.info(member_name)
+                    re_name = my_group.members.search(member_name)[0].remove()
+                    logging.info(re_name)
+                    msg.sender.send("已经移出:"+member_name)
+            else:
+                return "你不是管理员不能进行踢人操作"
+        else:
+            tuling.do_reply(msg)
+
 # 自动接受新的好友请求
 @bot.register(msg_types=FRIENDS)
 def auto_accept_friends(msg):
@@ -251,6 +290,7 @@ def auto_reply_picture(msg):
 @bot.register(msg_types=TEXT)
 def auto_reply_keywords(msg):
     if msg.text.find(u'圣诞') > -1 or msg.text.find(u'xms') > -1 or msg.text.find(u'christmas') > -1:
+        # 向好友发送消息
         try:
             msg.reply(random_msg[random.randint(0,num_msg)] + ads_msg)
             avtar_path = os.path.join(avtar_dir, str(msg.id) + '.jpg')
@@ -263,43 +303,40 @@ def auto_reply_keywords(msg):
         except Exception as e:
             logging.exception(e)
             msg.reply(error_msg)
-            # raise e
-    
-    elif msg.raw.get('FromUserName') == admin_request_name:
-        # adminer = ensure_one(bot.friends(update=True).search(admin_request_name))
-        if u'备份' in msg.text:
-            msg.sender.send_file('test.log')
-        elif msg.text.find(u'群发') >= 0 :
-            friendList = bot.friends(update=True)[1:]
-            for friend in friendList:
-                bot.send(msg.text.replace(u'群发', (friend['DisplayName']
-                    or friend['NickName']), friend['UserName']))
-                time.sleep(.5)
-        else:
-            return "请检查命令是否输入正确"
-    
-    elif msg.is_at :
-        my_group = ensure_one(bot.groups(update=True).search(group_name))
-        group_admin = ensure_one(my_group.members.search(admin_request_name))
-        if '踢出' in msg.text:
-            if msg.member == group_admin :
-                for member_name in msg.text.split('@')[2:]:
-                    logging.info(member_name)
-                    re_name = my_group.members.search(member_name)[0].remove()
-                    logging.info(re_name)
-                    msg.sender.send("已经移出:"+member_name)
-            else:
-                return "你不是管理员不能进行踢人操作"
-
+            # raise e       
     else:
-        chatbot = Tuling(api_key='42bbff0b64664a1a8014466d7c374352')
-        # chatbot = XiaoI('PQunMu3c66bM', 'FrQl1oi1YzpDSULeAIit')
-        chatbot.do_reply(msg)
+        tuling.do_reply(msg)
+
+
+def daemon_init(stdin='/dev/null',stdout='/dev/null',stderr='/dev/null'):
+    sys.stdin = open(stdin,'r')
+    sys.stdout = open(stdout,'a+')
+    sys.stderr = open(stderr,'a+')
+    try:
+        pid = os.fork()
+        if pid > 0:        #parrent
+            os._exit(0)
+    except OSError as e:
+        sys.stderr.write("first fork failed!!"+e.strerror)
+        os._exit(1)
+    os.setsid()
+    os.chdir(_base_dir)
+    os.umask(0)
+
+    try:
+        pid = os.fork()     #第二次进行fork,为了防止会话首进程意外获得控制终端
+        if pid > 0:
+            os._exit(0)     #父进程退出
+    except OSError as e:
+        sys.stderr.write("second fork failed!!"+e.strerror)
+        os._exit(1)
+    sys.stdout.write("Daemon has been created! with pid: %d\n" % os.getpid())
+    sys.stdout.flush()  #由于这里我们使用的是标准IO，回顾APUE第五章，这里应该是行缓冲或全缓冲，因此要调用flush，从内存中刷入日志文件。
 
 # 进入 Python 命令行、让程序保持运行
-embed(local=None, banner=u'进入命令行', shell='python')
+# embed(local=None, banner=u'进入命令行', shell='python')
 
 # 或者仅仅堵塞线程，后台执行
-# bot.join()
+bot.join()
 # 
 # daemon_init('/dev/null','./daemon.log','./daemon.err')
