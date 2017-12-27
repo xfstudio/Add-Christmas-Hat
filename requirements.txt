@@ -2,3 +2,5 @@ numpy
 dlib
 wxpy
 opencv-python
+pillow
+pickleshare

@@ -2,7 +2,7 @@
 # coding: utf-8
 from __future__ import print_function
 # 
-import os, time, random
+import os, sys, time, random
 import numpy as np 
 import cv2
 import dlib
@@ -28,6 +28,7 @@ xmas_dir = os.path.join(attachments_dir, 'xms')
 audio_dir = os.path.join(attachments_dir, 'audio')
 vedio_dir = os.path.join(attachments_dir, 'vedio')
 gen_attachment_path = partial(os.path.join, attachments_dir)
+welcome_msg = u'欢迎新朋友，发送“圣诞”、“xms”、“christmas”或者靓照自动送帽子.全能机器人陪聊'
 random_msg = [u'正在打开PS...', u'正在导入你的照片...', u'正在抠图...', u'正在尬聊...', u'正在制作🎩...', u'正在寻找🎄...']
 num_msg = len(random_msg)
 ads_msg = u'【支付宝】年终红包再加10亿！现在领取还有机会获得惊喜红包哦！长按复制此消息，打开最新版支付宝就能领取！FbZNhS64WT'
@@ -35,23 +36,13 @@ error_msg = u'请上传正面照才能戴的哟：）'
 building_msg = u'功能正在撸码中:(，加油👨'
 
 admin_request_name = u'肖长省'    #定义管理员微信名（必须是机器人的好友）  ps：raw_content字段需要自己手动更改微信名，微信号
-admin_request_num = 'xfolstudio'   #定义管理员微信号（必须是机器人的好友）
-group_name = 'trade-test'    #定义要查找群的名字
+admin_request_num = u'xfolstudio'   #定义管理员微信号（必须是机器人的好友）
+group_name = u'trade-test'    #定义要查找群的名字
 
 # 初始化机器人，扫码登陆
 bot = Bot(False, True)
 
-adminer = bot.friends(update=True).search(admin_request_name)[0]
-my_group = bot.groups(update=True).search(group_name)[0]
-group_admin = my_group.members.search(admin_request_name)[0]
-# _group = ensure_one(bot.groups().search(u'trade-test'))
-# _member = ensure_one(_group.search(u'trade-ripple'))
-# _shared_dict = dict()
-
 # global_use = partial(pytest.fixture, scope='session', autouse=True)
-# 
-tuling = Tuling(api_key='42bbff0b64664a1a8014466d7c374352')
-# xiaoi = XiaoI('PQunMu3c66bM', 'FrQl1oi1YzpDSULeAIit')   #小i机器人接口
 
 
 # 给img中的人头像加上圣诞帽，人脸最好为正脸
@@ -201,44 +192,12 @@ def add_hat_file(in_img, hat_img='hat2.png'):
     logging.info(out_img)
     return out_img
 
-
-
-#处理管理员信息
-@bot.register(adminer, msg_types=TEXT)
-def adminer(msg):
-    if '备份' in msg.text:
-        msg.sender.send_file('test.csv')
-    elif msg.text.find(u'群发') == 0 :
-        friendList = bot.friends(update=True)[1:]
-        for friend in friendList:
-            bot.send(msg.text.replace(u'群发', (friend['DisplayName']
-                or friend['NickName']), friend['UserName']))
-            time.sleep(.5)
-    else:
-        return "请检查命令是否输入正确"
-
-#群聊管理
-@bot.register(my_group, msg_types=TEXT)
-def group(msg):
-    if msg.is_at :
-        if '踢出' in msg.text:
-            if msg.member == group_admin :
-                for member_name in msg.text.split('@')[2:]:
-                    print(member_name)
-                    re_name = my_group.members.search(member_name)[0].remove()
-                    print(re_name)
-                    msg.sender.send("已经移出:"+member_name)
-            else:
-                return "你不是管理员不能进行踢人操作"
-        else:
-            tuling.do_reply(msg)
-
 # 自动接受新的好友请求
 @bot.register(msg_types=FRIENDS)
 def auto_accept_friends(msg):
     # 接受好友请求
     new_friend = msg.card.accept()
-    new_friend.send(u'欢迎新朋友，发送“圣诞”、“xms”、“christmas”或者靓照自动送帽子.全能机器人陪聊')
+    new_friend.send(welcome_msg)
     try:
         msg.reply(random_msg[random.randint(0,num_msg)] + ads_msg)
         avtar_path = os.path.join(avtar_dir, new_friend.uin() + '.jpg')
@@ -282,7 +241,7 @@ def auto_reply_picture(msg):
         audio = msg.get_file(audio_path)
         logging.debug(audio_path)
         logging.debug(audio)
-        msg.reply_image(building_msg)
+        msg.reply(building_msg)
     except Exception as e:
         logging.exception(e)
         msg.reply(error_msg)
@@ -292,7 +251,6 @@ def auto_reply_picture(msg):
 @bot.register(msg_types=TEXT)
 def auto_reply_keywords(msg):
     if msg.text.find(u'圣诞') > -1 or msg.text.find(u'xms') > -1 or msg.text.find(u'christmas') > -1:
-        # 向好友发送消息
         try:
             msg.reply(random_msg[random.randint(0,num_msg)] + ads_msg)
             avtar_path = os.path.join(avtar_dir, str(msg.id) + '.jpg')
@@ -305,13 +263,43 @@ def auto_reply_keywords(msg):
         except Exception as e:
             logging.exception(e)
             msg.reply(error_msg)
-            # raise e       
+            # raise e
+    
+    elif msg.name == admin_request_name:
+        # adminer = ensure_one(bot.friends(update=True).search(admin_request_name))
+        if u'备份' in msg.text:
+            msg.sender.send_file('test.log')
+        elif msg.text.find(u'群发') >= 0 :
+            friendList = bot.friends(update=True)[1:]
+            for friend in friendList:
+                bot.send(msg.text.replace(u'群发', (friend['DisplayName']
+                    or friend['NickName']), friend['UserName']))
+                time.sleep(.5)
+        else:
+            return "请检查命令是否输入正确"
+    
+    elif msg.is_at :
+        my_group = ensure_one(bot.groups(update=True).search(group_name))
+        group_admin = ensure_one(my_group.members.search(admin_request_name))
+        if '踢出' in msg.text:
+            if msg.member == group_admin :
+                for member_name in msg.text.split('@')[2:]:
+                    logging.info(member_name)
+                    re_name = my_group.members.search(member_name)[0].remove()
+                    logging.info(re_name)
+                    msg.sender.send("已经移出:"+member_name)
+            else:
+                return "你不是管理员不能进行踢人操作"
+
     else:
-        tuling.do_reply(msg)
+        chatbot = Tuling(api_key='42bbff0b64664a1a8014466d7c374352')
+        # chatbot = XiaoI('PQunMu3c66bM', 'FrQl1oi1YzpDSULeAIit')
+        chatbot.do_reply(msg)
 
 # 进入 Python 命令行、让程序保持运行
-# embed(local=None, banner=u'进入命令行', shell='python')
+embed(local=None, banner=u'进入命令行', shell='python')
 
-# 或者仅仅堵塞线程
-bot.join()
-
+# 或者仅仅堵塞线程，后台执行
+# bot.join()
+# 
+# daemon_init('/dev/null','./daemon.log','./daemon.err')

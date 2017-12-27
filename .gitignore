@@ -1,6 +1,7 @@
 .idea
 *.pkl
 *.log
+*.err
 _installed_files.txt
 _private
 
