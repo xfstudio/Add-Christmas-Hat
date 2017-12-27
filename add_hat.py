@@ -39,12 +39,12 @@ admin_request_num = 'xfolstudio'   #定义管理员微信号（必须是机器�
 group_name = 'trade-test'    #定义要查找群的名字
 
 # 初始化机器人，扫码登陆
-_bot = Bot(False, True)
+bot = Bot(False, True)
 
-adminer = _bot.friends(update=True).search(admin_request_name)[0]
-my_group = _bot.groups(update=True).search(group_name)[0]
+adminer = bot.friends(update=True).search(admin_request_name)[0]
+my_group = bot.groups(update=True).search(group_name)[0]
 group_admin = my_group.members.search(admin_request_name)[0]
-# _group = ensure_one(_bot.groups().search(u'trade-test'))
+# _group = ensure_one(bot.groups().search(u'trade-test'))
 # _member = ensure_one(_group.search(u'trade-ripple'))
 # _shared_dict = dict()
 
@@ -209,9 +209,9 @@ def adminer(msg):
     if '备份' in msg.text:
         msg.sender.send_file('test.csv')
     elif msg.text.find(u'群发') == 0 :
-        friendList = _bot.friends(update=True)[1:]
+        friendList = bot.friends(update=True)[1:]
         for friend in friendList:
-            _bot.send(msg.text.replace(u'群发', (friend['DisplayName']
+            bot.send(msg.text.replace(u'群发', (friend['DisplayName']
                 or friend['NickName']), friend['UserName']))
             time.sleep(.5)
     else:
@@ -234,7 +234,7 @@ def group(msg):
             tuling.do_reply(msg)
 
 # 自动接受新的好友请求
-@_bot.register(msg_types=FRIENDS)
+@bot.register(msg_types=FRIENDS)
 def auto_accept_friends(msg):
     # 接受好友请求
     new_friend = msg.card.accept()
@@ -255,7 +255,7 @@ def auto_accept_friends(msg):
     
 
 # 自动回复图片
-@_bot.register(msg_types=PICTURE)
+@bot.register(msg_types=PICTURE)
 def auto_reply_picture(msg):
     # 向好友发送消息
     try:
@@ -273,7 +273,7 @@ def auto_reply_picture(msg):
         # raise e
 
 # 自动回复语音
-@_bot.register(msg_types=RECORDING)
+@bot.register(msg_types=RECORDING)
 def auto_reply_picture(msg):
     # 向好友发送消息
     try:
@@ -289,7 +289,7 @@ def auto_reply_picture(msg):
         # raise e
         
 # 关键字处理
-@_bot.register(msg_types=TEXT)
+@bot.register(msg_types=TEXT)
 def auto_reply_keywords(msg):
     if msg.text.find(u'圣诞') > -1 or msg.text.find(u'xms') > -1 or msg.text.find(u'christmas') > -1:
         # 向好友发送消息
