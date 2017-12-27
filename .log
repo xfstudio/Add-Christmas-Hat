@@ -1,0 +1,7 @@
+Wed, 27 Dec 2017 13:40:16 connectionpool.py[line:635] INFO Starting new HTTPS connection (1): login.weixin.qq.com
+Wed, 27 Dec 2017 13:40:16 connectionpool.py[line:344] DEBUG "GET / HTTP/1.1" 200 86787
+Wed, 27 Dec 2017 13:40:16 login.py[line:39] INFO Getting uuid of QR code.
+Wed, 27 Dec 2017 13:40:16 connectionpool.py[line:635] INFO Starting new HTTPS connection (1): login.weixin.qq.com
+Wed, 27 Dec 2017 13:40:16 connectionpool.py[line:344] DEBUG "GET /jslogin?appid=wx782c26e4c19acffb&fun=new HTTP/1.1" 200 64
+Wed, 27 Dec 2017 13:40:16 login.py[line:42] INFO Downloading QR code.
+Wed, 27 Dec 2017 13:40:17 login.py[line:45] INFO Please scan the QR code to log in.
